@@ -58,7 +58,7 @@ def print_schema_table(schema):
 
 
 # Example usage
-csv_file_path = "/Users/brendangallagher/Files/a | Projects/csv Schema Inference Tool/data/Gym Progression - Progression.csv"
+csv_file_path = "example_data.csv"
 schema = generate_schema(csv_file_path)
 
 # Print the schema as a table
