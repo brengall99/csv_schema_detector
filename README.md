@@ -11,7 +11,9 @@ This is a tool designed to analyse and automaticaly report the shcema of a .csv 
 - **Nullability Check:** Checks each column for null values and provides the mode (Nullable or Not Nullable).
 
 ## Install Required Libraries
+```python
 pip install pandas tabulate
+```
 
 ## Data
 Included in this repository is an example csv 'example_data.csv'. To use this example, ensure it is in the same folder as the 'schema_inference_tool.py' file.
@@ -21,7 +23,7 @@ We can use the tool as an independent function, and call it to a different proje
 ```python
 from detect_csv_schema import detect_csv_schema
 
-# Replace 'yourfile.csv' with the path to your CSV file
+# Replace 'yourfile.csv' with apropriate file or path
 detect_csv_schema('yourfile.csv')
 ```
 
