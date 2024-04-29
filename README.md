@@ -1,5 +1,4 @@
 # CSV Schema Detector
-A tool to infer the schema of a .csv file and print it out
 
 ## Project Overview
 This is a tool designed to analyse and automaticaly report the shcema of a .csv file. The tool reads the CSV file, infers data types for each column, and identifies whether the columns contain homogeneous types, mixed numeric and string types, or date formats. Additionally, it detects columns that effectively represent boolean values using 0s and 1s.
