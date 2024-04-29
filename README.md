@@ -9,7 +9,7 @@ This is a tool designed to analyse and automaticaly report the shcema of a .csv 
 - **Type Identification:** Classifies columns into various types including DateTime, Boolean, Mixed (Numeric & String), and String (Homogeneous).
 - **Nullability Check:** Checks each column for null values and provides the mode (Nullable or Not Nullable).
 
-## Install Required Libraries
+## Required Libraries
 ```python
 pip install pandas tabulate
 ```
