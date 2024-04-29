@@ -1,67 +1,60 @@
-import csv
+import pandas as pd
 from tabulate import tabulate
-from datetime import datetime
 
+def detect_csv_schema(file_path):
 
-def generate_schema(csv_file_path):
-    # List to store column information as lists [name, data_type, nullable]
+    # Load the CSV file, attempt to parse dates
+    data = pd.read_csv(file_path, parse_dates=True, dayfirst=True)
+    data = data.loc[:, ~data.columns.str.contains('^Unnamed')] # Drop empty columns
+
+    # Iterate and check for date and bool type
+    for column in data.columns:
+        col_data = data[column]
+        if col_data.dtype == 'object':
+            # Attempt to manually parse datetime if not automatically detected
+            try:
+                data[column] = pd.to_datetime(data[column], dayfirst=True)
+            except (ValueError, TypeError):
+                pass
+
+        # Check for bool columns that use 0s or 1s
+        unique_values = pd.unique(col_data.dropna())
+        if set(unique_values) <= {0, 1}:
+            if len(unique_values) == 2:
+                data[column] = col_data.astype('bool')
+
+    # Prepare schema data for each column
     schema = []
+    for column in data.columns:
+        col_data = data[column]
+        data_type = col_data.dtype
 
-    # Read the CSV file
-    with open(csv_file_path, 'r') as file:
-        reader = csv.DictReader(file)
+        # Refine type descriptions
+        if pd.api.types.is_datetime64_any_dtype(data_type):
+            data_type = "DateTime"
+        elif pd.api.types.is_bool_dtype(data_type):
+            data_type = "Boolean"
+        elif pd.api.types.is_object_dtype(data_type):
+            if any(isinstance(x, (int, float, complex)) and not isinstance(x, bool) for x in col_data.dropna()):
+                data_type = "Mixed (Numeric & String)"
+            else:
+                data_type = "String (Homogeneous)"
 
-        # Iterate over the rows to infer schema
-        for row in reader:
-            for key, value in row.items():
-                # Check if it's a date
-                try:
-                    datetime.strptime(value, '%d/%m/%Y')
-                    data_type = "date"
-                except ValueError:
-                    # Infer data type based on the value
-                    if value.isdigit():
-                        data_type = "int"
-                    elif value.replace(".", "", 1).isdigit():
-                        data_type = "float"
-                    else:
-                        data_type = "str"
+        # Determine the mode (nullable or not)
+        mode = "Nullable" if col_data.isnull().any() else "Not Nullable"
 
-                # Check if nullable
-                nullable = False if value.strip() else True
+        schema.append({
+            "Column Name": column,
+            "Type": str(data_type),
+            "Mode": mode
+        })
 
-                # Update or add column information
-                found = False
-                for column_info in schema:
-                    if column_info[0] == key:
-                        found = True
-                        if data_type != column_info[1]:
-                            if column_info[1] == "str":
-                                column_info[1] = data_type
-                            elif data_type == "str":
-                                pass
-                            else:
-                                column_info[1] = "str"
-                        if nullable:
-                            column_info[2] = True
-                        break
-                if not found:
-                    schema.append([key, data_type, nullable])
-
-    return schema
+    # Print the schema using tabulate
+    print(tabulate(schema, headers="keys", tablefmt="grid"))
 
 
-# Print the schema as a table
-def print_schema_table(schema):
-    headers = ["Column Name", "Data Type", "Nullable"]
-    print(tabulate(schema, headers=headers, tablefmt="grid"))
+# Replace 'example_data.csv' with a different file to detect schema
+detect_csv_schema("example_data.csv")
 
-
-# Example usage
-csv_file_path = "example_data.csv"
-schema = generate_schema(csv_file_path)
-
-# Print the schema as a table
-print_schema_table(schema)
 
 
