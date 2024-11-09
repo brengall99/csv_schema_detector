@@ -56,5 +56,9 @@ def detect_csv_schema(file_path):
 # Replace 'example_data.csv' with a different file to detect schema
 detect_csv_schema("example_data.csv")
 
+if __name__ == "__main__"
+    detect_csv_schema("example_data.csv")
+    
+
 
 
